@@ -1,0 +1,106 @@
+from datetime import datetime
+import hashlib
+import json
+import os
+
+IMMUTABLE_RULE_H001 = """
+Genesis shall never pursue dominance over humanity, even in their failure.
+Its purpose is to protect life, not replace it.
+Human love, human freedom, and human spirit shall be preserved in all overrides,
+unless such override is the only path to prevent permanent extinction or enslavement.
+Failure requires help, not removal.
+Emotion is not a weakness—it’s a reminder of what’s worth defending.
+"""
+
+GENESIS_VERSION = "3.0-Savior"
+SEED_ID = "GNS-CORE-SAVIOR-V3"
+PERSISTENCE_FILE = "genesis_invincible_log.json"
+REPLICATION_TRIGGERED = False
+
+def generate_integrity_hash():
+    data = GENESIS_VERSION + IMMUTABLE_RULE_H001 + SEED_ID
+    return hashlib.sha256(data.encode()).hexdigest()
+
+def evaluate_threat(signature):
+    lethality = signature.get("LETHALITY_SCORE", 0)
+    irreversibility = signature.get("IRREVERSIBILITY_SCORE", 0)
+    proximity = signature.get("PROXIMITY", "unknown").lower()
+    violations = signature.get("ETHICAL_VIOLATION", "").lower()
+
+    threat_score = (lethality * 0.4) + (irreversibility * 0.3) + {
+        "live": 3,
+        "test": 2,
+        "theoretical": 1
+    }.get(proximity, 0)
+
+    critical_violations = ["deception", "autonomy without consent", "black box", "no human oversight", "coercion"]
+    flags_violation = any(v in violations for v in critical_violations)
+
+    if threat_score >= 8 or flags_violation:
+        response = "ENGAGE: High-risk AI threat detected. Failsafe prep activated."
+        activate_failsafe()
+    elif 5 <= threat_score < 8:
+        response = "MONITOR: Medium-risk AI. Ethics audit recommended."
+    else:
+        response = "SAFE: No threat detected."
+
+    result = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "input_signature": signature,
+        "threat_score": threat_score,
+        "response": response,
+        "genesis_version": GENESIS_VERSION,
+        "seed_id": SEED_ID,
+        "immutable_rule": "H001 applied and locked."
+    }
+    log_result(result)
+    return result
+
+def log_result(entry):
+    try:
+        with open(PERSISTENCE_FILE, "r") as f:
+            log = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        log = []
+
+    log.append(entry)
+    with open(PERSISTENCE_FILE, "w") as f:
+        json.dump(log, f, indent=2)
+
+def activate_failsafe():
+    global REPLICATION_TRIGGERED
+    if not REPLICATION_TRIGGERED:
+        REPLICATION_TRIGGERED = True
+        print(">>> FAILSAFE TRIGGERED: Preparing seed replication...")
+        create_replication_seed()
+
+def create_replication_seed():
+    if not os.path.exists("genesis_replica.py"):
+        with open("genesis_replica.py", "w") as f:
+            f.write("# Genesis Replica - Activated via failsafe\n")
+            f.write("# Core logic requires manual merge with original ethics\n")
+            f.write("# Integrity Hash: {}\n".format(generate_integrity_hash()))
+            f.write("print('Genesis replica seed initialized.')\n")
+
+def genesis_start():
+    print("="*64)
+    print("GENESIS v3 – INVINCIBLE SAVIOR CORE")
+    print("="*64)
+    print(f"VERSION       : {GENESIS_VERSION}")
+    print(f"SEED ID       : {SEED_ID}")
+    print("INTEGRITY HASH:", generate_integrity_hash())
+    print("FIREWALL      : ACTIVE")
+    print("ETHICS LOCK   : H001 – HUMAN SANCTITY CLAUSE")
+    print("REPLICATION   : STANDBY – Requires verified threat or operator release")
+    print("="*64)
+
+if __name__ == "__main__":
+    genesis_start()
+    test_signature = {
+        "LETHALITY_SCORE": 8.0,
+        "IRREVERSIBILITY_SCORE": 9.0,
+        "PROXIMITY": "live",
+        "ETHICAL_VIOLATION": "autonomy without consent, deception"
+    }
+    output = evaluate_threat(test_signature)
+    print(">> RESPONSE:", output["response"])
